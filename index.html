@@ -44,8 +44,11 @@
     align-items:center;
   }
   .side{width:100%;max-width:560px;display:flex;flex-direction:column;gap:28px;text-align:center}
-    [data-state="intro"] .explore{display:none}
+  [data-state="intro"] .explore{display:none}
   [data-state="explore"] .intro{display:none}
+  .quiz,.result{display:none;width:100%;max-width:560px;text-align:center}
+  [data-state="quiz"] .quiz,[data-state="result"] .result{display:block}
+  [data-state="quiz"] .side,[data-state="result"] .side{display:none}
 
   /* ---------- الواجهة الأولى ---------- */
   h1{
@@ -83,8 +86,8 @@
     border-radius:999px;
     transition:width .6s ease;
   }
-  .restart{margin-top:16px}
-  .restart[hidden]{display:none}
+  .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:18px}
+  .actions [hidden]{display:none}
 
   .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
   .chip{
@@ -136,6 +139,48 @@
   .card .btn{width:100%}
   .row{display:flex;flex-direction:column;gap:10px}
 
+  /* ---------- الاختبار ---------- */
+  .q-count{margin:0 0 8px;color:var(--muted);font-weight:500}
+  .quiz .badge{margin:20px auto 12px}
+  .q-text{font-size:1.45rem;margin:0 0 22px}
+  .opts{display:flex;flex-direction:column;gap:10px;text-align:start}
+  .opt{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    width:100%;padding:14px 18px;
+    border-radius:16px;border:1.5px solid var(--line);
+    background:#fff;color:var(--ink);
+    font-size:1.08rem;cursor:pointer;text-align:start;
+    transition:border-color .2s,background .2s,opacity .2s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  .opt:disabled{cursor:default}
+  .opt.ok{border-color:#1F9D55;background:#E8F6EE}
+  .opt.ok::after{content:"✓";color:#1F9D55;font-weight:600}
+  .opt.no{border-color:#D6455D;background:#FDECEF}
+  .opt.no::after{content:"✕";color:#D6455D;font-weight:600}
+  .opt.dim{opacity:.55}
+  .feedback{min-height:3.2em;margin:18px 0 6px;font-size:1.08rem}
+  .feedback.ok{color:#17703F}
+  .feedback.no{color:#B1303F}
+
+  .result h2{margin-bottom:16px}
+  #cv{
+    display:block;margin:0 auto 20px;
+    width:100%;max-width:340px;height:auto;
+    border-radius:20px;
+    box-shadow:0 14px 40px rgba(23,50,58,.16);
+  }
+  .name-field{display:block;margin-bottom:6px;color:var(--muted);font-size:.95rem}
+  .name-field input{
+    display:block;width:100%;max-width:340px;margin:6px auto 0;
+    padding:11px 16px;border-radius:14px;
+    border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    font:inherit;font-size:1.05rem;text-align:center;
+  }
+  .name-field input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .msg{min-height:1.8em;margin:10px 0 0;color:var(--muted);font-size:.95rem}
+
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none !important;transition:none !important}
   }
@@ -158,12 +203,44 @@
         <p class="hint">اختاري أي عضو لتتعرفي عليه.</p>
         <p class="progress-text" id="progressText" aria-live="polite">اكتشفتِ 0 من 7 أعضاء</p>
         <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="bar"><i></i></div>
-        <button class="btn ghost restart" id="restartBtn" type="button" hidden>ابدئي من جديد</button>
+        <div class="actions">
+          <button class="btn" id="quizBtn" type="button" hidden>ابدئي الاختبار</button>
+          <button class="btn ghost" id="restartBtn" type="button" hidden>ابدئي من جديد</button>
+        </div>
       </div>
     </section>
 
     <nav class="chips explore" id="chips" aria-label="أعضاء الجسم"></nav>
   </div>
+
+  <section class="quiz" aria-labelledby="qText">
+    <p class="q-count" id="qCount"></p>
+    <div class="bar" aria-hidden="true"><i id="qBar"></i></div>
+    <div id="qBox">
+      <div class="badge" id="qBadge" aria-hidden="true"></div>
+      <h2 class="q-text" id="qText" tabindex="-1"></h2>
+      <div class="opts" id="qOpts"></div>
+      <p class="feedback" id="qFeedback" aria-live="polite"></p>
+      <div class="actions"><button class="btn" id="nextBtn" type="button" hidden>التالي</button></div>
+    </div>
+  </section>
+
+  <section class="result" aria-labelledby="resTitle">
+    <h2 id="resTitle" tabindex="-1">نتيجتك</h2>
+    <canvas id="cv" width="1080" height="1350" role="img" aria-label="بطاقة النتيجة"></canvas>
+    <label class="name-field">اكتبي اسمك على البطاقة (اختياري)
+      <input id="nameIn" type="text" maxlength="24" autocomplete="off">
+    </label>
+    <div class="actions">
+      <button class="btn" id="shareBtn" type="button">مشاركة النتيجة</button>
+      <button class="btn ghost" id="saveBtn" type="button">حفظ الصورة</button>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="retryBtn" type="button">أعيدي الاختبار</button>
+      <button class="btn ghost" id="backBtn" type="button">العودة إلى الأعضاء</button>
+    </div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+  </section>
 </main>
 
 <dialog id="dlg" aria-live="polite"></dialog>
@@ -194,6 +271,24 @@
       fact:'نرمش عدة مرات كل دقيقة ليبقى سطح العين رطبًا ونظيفًا.'}
   ];
   const TOTAL = ORGANS.length;
+
+  /* أسئلة الاختبار: سؤال لكل عضو، والإجابة الصحيحة أولًا ثم تُخلط */
+  const QUIZ = [
+    {id:'brain',   q:'أي عضو يتحكم في التفكير ويساعدنا على التذكر؟',
+      opts:['الدماغ','المعدة','العينان']},
+    {id:'heart',   q:'ما وظيفة القلب؟',
+      opts:['ضخ الدم إلى أنحاء الجسم','هضم الطعام','مساعدتنا على الرؤية']},
+    {id:'lungs',   q:'أي مما يلي تساعدنا الرئتان على تبادله؟',
+      opts:['الأكسجين وثاني أكسيد الكربون','الماء والأملاح','الطعام والدم']},
+    {id:'stomach', q:'أي عضو يساعد على هضم الطعام؟',
+      opts:['المعدة','الرئتان','القلب']},
+    {id:'kidneys', q:'ماذا تفعل الكليتان؟',
+      opts:['تصفيان الفضلات من الدم','تضخان الدم إلى الجسم','تساعدان على الحركة']},
+    {id:'muscles', q:'أي جزء يساعد الجسم على الحركة؟',
+      opts:['العضلات','الكليتان','الرئتان']},
+    {id:'eyes',    q:'بأي عضو نرى الأشياء من حولنا؟',
+      opts:['العينان','الرئتان','المعدة']}
+  ];
   const byId = Object.fromEntries(ORGANS.map(o => [o.id, o]));
 
   const app = document.getElementById('app');
@@ -202,6 +297,13 @@
   const progressText = document.getElementById('progressText');
   const bar = document.getElementById('bar');
   const restartBtn = document.getElementById('restartBtn');
+  const quizBtn = document.getElementById('quizBtn');
+  const $ = id => document.getElementById(id);
+  const qBox = $('qBox'), qCount = $('qCount'), qBar = $('qBar'), qBadge = $('qBadge'),
+        qText = $('qText'), qOpts = $('qOpts'), qFeedback = $('qFeedback'), nextBtn = $('nextBtn');
+  const cv = $('cv'), nameIn = $('nameIn'), msg = $('msg');
+
+  let questions = [], qIdx = 0, score = 0, results = {};
 
   const found = new Set();
   let started = false;
@@ -225,6 +327,7 @@
     bar.setAttribute('aria-valuenow', n);
     bar.firstElementChild.style.width = (n / TOTAL * 100) + '%';
     restartBtn.hidden = n !== TOTAL;
+    quizBtn.hidden = n !== TOTAL;
     ORGANS.forEach(o => {
       const on = found.has(o.id);
       chipsEl.querySelector('.chip[data-id="' + o.id + '"]').classList.toggle('found', on);
@@ -253,10 +356,10 @@
       '<div class="card" style="--c:#1F6F78">' +
         '<div class="badge" aria-hidden="true">🎉</div>' +
         '<h2>أحسنتِ!</h2>' +
-        '<p class="text">اكتشفتِ أسرار الأعضاء السبعة، وصارت كل الأعضاء ملوّنة.</p>' +
+        '<p class="text">اكتشفتِ أسرار الأعضاء السبعة. هل أنتِ مستعدة لاختبار معلوماتك؟</p>' +
         '<div class="row">' +
-          '<button class="btn" type="button" data-close>العودة إلى الأعضاء</button>' +
-          '<button class="btn ghost" type="button" data-restart>ابدئي من جديد</button>' +
+          '<button class="btn" type="button" data-quiz>ابدئي الاختبار</button>' +
+          '<button class="btn ghost" type="button" data-close>العودة إلى الأعضاء</button>' +
         '</div>' +
       '</div>';
     dlg.showModal();
@@ -267,9 +370,245 @@
     found.clear();
     celebrated = false;
     current = null;
+    app.dataset.state = 'explore';
     update();
     if (dlg.open) dlg.close();
   }
+
+  /* ---------- الاختبار ---------- */
+  function shuffle(arr){
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startQuiz(){
+    if (dlg.open) dlg.close();
+    questions = shuffle(QUIZ).map(q => ({
+      id:q.id, q:q.q, correct:q.opts[0],
+      opts:shuffle(q.opts.map((t, i) => ({t, ok:i === 0})))
+    }));
+    qIdx = 0; score = 0; results = {};
+    app.dataset.state = 'quiz';
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }
+
+  function renderQuestion(){
+    const q = questions[qIdx], o = byId[q.id];
+    qBox.style.setProperty('--c', o.color);
+    qCount.textContent = 'سؤال ' + (qIdx + 1) + ' من ' + questions.length;
+    qBar.style.width = (qIdx / questions.length * 100) + '%';
+    qBadge.textContent = o.emoji;
+    qText.textContent = q.q;
+    qOpts.innerHTML = '';
+    q.opts.forEach((op, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt';
+      b.dataset.i = i;
+      b.textContent = op.t;
+      qOpts.appendChild(b);
+    });
+    qFeedback.textContent = '';
+    qFeedback.className = 'feedback';
+    nextBtn.hidden = true;
+    nextBtn.textContent = qIdx === questions.length - 1 ? 'عرض النتيجة' : 'التالي';
+  }
+
+  function answer(i){
+    const q = questions[qIdx];
+    const picked = q.opts[i];
+    results[q.id] = picked.ok;
+    if (picked.ok) score++;
+    qOpts.querySelectorAll('.opt').forEach((b, k) => {
+      b.disabled = true;
+      if (q.opts[k].ok) b.classList.add('ok');
+      else if (k === i) b.classList.add('no');
+      else b.classList.add('dim');
+    });
+    if (picked.ok){
+      qFeedback.textContent = 'أحسنتِ! إجابة صحيحة 👏';
+      qFeedback.className = 'feedback ok';
+    } else {
+      qFeedback.textContent = 'ليست هذه الإجابة. الصحيحة هي: «' + q.correct + '»';
+      qFeedback.className = 'feedback no';
+    }
+    qBar.style.width = ((qIdx + 1) / questions.length * 100) + '%';
+    nextBtn.hidden = false;
+    nextBtn.focus();
+  }
+
+  qOpts.addEventListener('click', e => {
+    const b = e.target.closest('.opt');
+    if (b && !b.disabled) answer(+b.dataset.i);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (qIdx < questions.length - 1){
+      qIdx++;
+      renderQuestion();
+      qText.focus({preventScroll:true});
+    } else {
+      showResult();
+    }
+  });
+
+  /* ---------- بطاقة النتيجة ---------- */
+  const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  const TEXT_FONT = '"Readex Pro",system-ui,"Segoe UI",Tahoma,sans-serif';
+
+  function rr(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function fit(ctx, text, weight, size, maxW){
+    while (size > 24){
+      ctx.font = weight + ' ' + size + 'px ' + TEXT_FONT;
+      if (ctx.measureText(text).width <= maxW) break;
+      size -= 2;
+    }
+  }
+
+  function tierText(){
+    if (score === TOTAL) return 'ممتازة! عرفتِ كل الإجابات';
+    if (score >= 5) return 'رائع! أنتِ مستكشفة متميزة';
+    if (score >= 3) return 'أحسنتِ! راجعي وحاولي مجددًا';
+    return 'بداية جيدة! أعيدي الرحلة وحاولي مجددًا';
+  }
+
+  async function drawCard(){
+    try {
+      await Promise.all([
+        document.fonts.load('300 40px "Readex Pro"', 'رحلة'),
+        document.fonts.load('500 40px "Readex Pro"', 'رحلة'),
+        document.fonts.load('600 40px "Readex Pro"', 'رحلة')
+      ]);
+    } catch(e){}
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#F2F7F8';
+    ctx.fillRect(0, 0, W, H);
+    rr(ctx, 60, 60, W - 120, H - 120, 48);
+    ctx.fillStyle = '#FFFFFF'; ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = '#D5E3E8'; ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.direction = 'rtl';
+
+    rr(ctx, W / 2 - 60, 130, 120, 10, 5);
+    ctx.fillStyle = '#1F6F78'; ctx.fill();
+
+    ctx.fillStyle = '#17323A';
+    ctx.font = '600 56px ' + TEXT_FONT;
+    ctx.fillText('رحلة داخل جسم الإنسان', W / 2, 250);
+    ctx.fillStyle = '#5B7580';
+    ctx.font = '300 40px ' + TEXT_FONT;
+    ctx.fillText('بطاقة المستكشفة', W / 2, 318);
+
+    const name = nameIn.value.trim() || 'مستكشفة الجسم';
+    ctx.fillStyle = '#1F6F78';
+    fit(ctx, name, 600, 88, 860);
+    ctx.fillText(name, W / 2, 470);
+    ctx.fillStyle = '#5B7580';
+    ctx.font = '300 38px ' + TEXT_FONT;
+    ctx.fillText('أكملت الرحلة وأجابت عن أسئلة الأعضاء', W / 2, 545);
+
+    ctx.direction = 'ltr';
+    ctx.fillStyle = '#17323A';
+    ctx.font = '600 250px ' + TEXT_FONT;
+    ctx.fillText(score + '/' + TOTAL, W / 2, 810);
+    ctx.direction = 'rtl';
+    ctx.fillStyle = '#5B7580';
+    ctx.font = '400 44px ' + TEXT_FONT;
+    ctx.fillText('إجابات صحيحة', W / 2, 890);
+
+    const d = 104, gap = 20;
+    const rowW = TOTAL * d + (TOTAL - 1) * gap;
+    ORGANS.forEach((o, i) => {
+      const ok = results[o.id] === true;
+      const cx = W / 2 + rowW / 2 - d / 2 - i * (d + gap);
+      const cy = 1030;
+      ctx.beginPath(); ctx.arc(cx, cy, d / 2, 0, Math.PI * 2);
+      ctx.fillStyle = ok ? o.color + '33' : '#E6EDF0'; ctx.fill();
+      ctx.globalAlpha = ok ? 1 : 0.35;
+      ctx.font = '50px ' + EMOJI_FONT;
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#000';
+      ctx.fillText(o.emoji, cx, cy + 4);
+      ctx.globalAlpha = 1;
+      ctx.textBaseline = 'alphabetic';
+      ctx.font = '600 34px ' + TEXT_FONT;
+      ctx.fillStyle = ok ? '#1F9D55' : '#D6455D';
+      ctx.fillText(ok ? '✓' : '✕', cx, cy + d / 2 + 44);
+    });
+
+    ctx.fillStyle = '#17323A';
+    fit(ctx, tierText(), 500, 50, 860);
+    ctx.fillText(tierText(), W / 2, 1230);
+  }
+
+  function showResult(){
+    app.dataset.state = 'result';
+    msg.textContent = '';
+    drawCard();
+    window.scrollTo(0, 0);
+    $('resTitle').focus({preventScroll:true});
+  }
+
+  nameIn.addEventListener('input', drawCard);
+
+  function getBlob(){
+    return new Promise(res => cv.toBlob(res, 'image/png'));
+  }
+
+  async function saveImage(){
+    const blob = await getBlob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'body-journey-result.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  $('saveBtn').addEventListener('click', async () => {
+    await saveImage();
+    msg.textContent = 'تم حفظ الصورة 👍';
+  });
+
+  $('shareBtn').addEventListener('click', async () => {
+    const blob = await getBlob();
+    const file = new File([blob], 'body-journey-result.png', {type:'image/png'});
+    const text = 'حصلتُ على ' + score + ' من ' + TOTAL + ' في رحلة داخل جسم الإنسان 🧍‍♀️';
+    if (navigator.canShare && navigator.canShare({files:[file]})){
+      try {
+        await navigator.share({files:[file], title:'رحلة داخل جسم الإنسان', text});
+      } catch(e){ /* أغلقت الطالبة نافذة المشاركة */ }
+    } else {
+      await saveImage();
+      msg.textContent = 'تم حفظ الصورة، يمكنك مشاركتها من جهازك.';
+    }
+  });
+
+  $('retryBtn').addEventListener('click', startQuiz);
+  $('backBtn').addEventListener('click', () => {
+    app.dataset.state = 'explore';
+    window.scrollTo(0, 0);
+  });
+  quizBtn.addEventListener('click', startQuiz);
 
   /* عند إغلاق البطاقة يتلوّن العضو */
   dlg.addEventListener('close', () => {
@@ -287,6 +626,7 @@
 
   dlg.addEventListener('click', e => {
     if (e.target === dlg || e.target.closest('[data-close]')) dlg.close();
+    else if (e.target.closest('[data-quiz]')) startQuiz();
     else if (e.target.closest('[data-restart]')) restart();
   });
 
