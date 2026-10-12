@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رحلة داخل جسم الإنسان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F7F8;
+    --ink:#17323A;
+    --muted:#5B7580;
+    --line:#D5E3E8;
+    --accent:#1F6F78;
+    --accent-dark:#175961;
+    --mute:#DCE8EC;
+    --mute-soft:#EEF5F7;
+    --mute-line:#B8CCD4;
+    --body-line:#CBDDE3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Readex Pro',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;
+    font-size:17px;
+    line-height:1.75;
+    min-height:100vh;
+  }
+  button{font:inherit}
+
+  /* ---------- التخطيط ---------- */
+  main{
+    max-width:1000px;
+    margin:0 auto;
+    padding:32px 20px 48px;
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1fr;
+    justify-items:center;
+    align-items:center;
+  }
+  .side{width:100%;max-width:560px;display:flex;flex-direction:column;gap:28px;text-align:center}
+    [data-state="intro"] .explore{display:none}
+  [data-state="explore"] .intro{display:none}
+
+  /* ---------- الواجهة الأولى ---------- */
+  h1{
+    font-size:clamp(2rem,5.2vw,3.1rem);
+    font-weight:600;
+    line-height:1.35;
+    margin:0 0 12px;
+  }
+  .lead{font-size:1.3rem;color:var(--muted);margin:0 0 28px;font-weight:300}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--accent);color:#fff;
+    border:2px solid var(--accent);
+    border-radius:999px;
+    padding:12px 34px;
+    font-size:1.1rem;font-weight:500;
+    cursor:pointer;
+    transition:background .2s,transform .1s;
+  }
+  .btn:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible,.chip:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  .btn.ghost{background:transparent;color:var(--accent)}
+  .btn.ghost:hover{background:var(--mute-soft)}
+
+  /* ---------- واجهة الاستكشاف ---------- */
+  h2{font-size:1.5rem;font-weight:600;margin:0 0 4px;line-height:1.4}
+  .hint{margin:0;color:var(--muted);font-weight:300}
+  .progress-text{margin:18px 0 8px;font-weight:500;font-size:1.15rem}
+  .bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+  .bar > i{
+    display:block;height:100%;width:0;
+    background:var(--accent);
+    border-radius:999px;
+    transition:width .6s ease;
+  }
+  .restart{margin-top:16px}
+  .restart[hidden]{display:none}
+
+  .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:#fff;color:var(--ink);
+    font-size:.97rem;cursor:pointer;
+    transition:background .4s,border-color .4s;
+  }
+  .chip:hover{border-color:var(--mute-line)}
+  .chip.found{
+    border-color:var(--c);
+    background:color-mix(in srgb,var(--c) 14%,#fff);
+  }
+  .chip.found::after{content:"✓";color:var(--c);font-weight:600;filter:brightness(.8)}
+
+  /* ---------- البطاقة ---------- */
+  dialog{
+    border:0;padding:0;background:transparent;color:var(--ink);
+    width:calc(100vw - 32px);max-width:440px;
+    overflow:visible;
+  }
+  dialog::backdrop{background:rgba(23,50,58,.5)}
+  .card{
+    background:#fff;border-radius:26px;
+    padding:28px 28px 24px;
+    box-shadow:0 24px 70px rgba(23,50,58,.28);
+  }
+  dialog[open] .card{animation:rise .28s ease-out}
+  @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  .badge{
+    width:76px;height:76px;border-radius:50%;
+    display:grid;place-items:center;
+    font-size:2.3rem;
+    background:color-mix(in srgb,var(--c) 18%,#fff);
+    margin-bottom:12px;
+  }
+  .card h2{font-size:1.7rem;margin:0 0 14px}
+  .label{margin:0;font-size:.9rem;font-weight:500;color:var(--muted)}
+  .text{margin:0 0 16px;font-size:1.12rem}
+  .fact{
+    background:color-mix(in srgb,var(--c) 12%,#fff);
+    border-radius:16px;
+    padding:12px 16px 2px;
+    margin-bottom:22px;
+  }
+  .card .btn{width:100%}
+  .row{display:flex;flex-direction:column;gap:10px}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<main id="app" data-state="intro">
+  <div class="side">
+
+    <section class="info">
+      <div class="intro">
+        <h1>رحلة داخل جسم الإنسان 🧍‍♀️</h1>
+        <p class="lead">«هل أنتِ مستعدة لاكتشاف أسرار جسمك؟»</p>
+        <button class="btn" id="startBtn" type="button">ابدئي الرحلة</button>
+      </div>
+
+      <div class="explore">
+        <h2 id="exploreTitle" tabindex="-1">اكتشفي أسرار جسم الإنسان</h2>
+        <p class="hint">اختاري أي عضو لتتعرفي عليه.</p>
+        <p class="progress-text" id="progressText" aria-live="polite">اكتشفتِ 0 من 7 أعضاء</p>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="bar"><i></i></div>
+        <button class="btn ghost restart" id="restartBtn" type="button" hidden>ابدئي من جديد</button>
+      </div>
+    </section>
+
+    <nav class="chips explore" id="chips" aria-label="أعضاء الجسم"></nav>
+  </div>
+</main>
+
+<dialog id="dlg" aria-live="polite"></dialog>
+
+<script>
+(function(){
+  const ORGANS = [
+    {id:'brain',    emoji:'🧠', name:'الدماغ',        color:'#E58BB4', fnLabel:'وظيفته',
+      fn:'يتحكم في التفكير والحركة ويساعدنا على التذكر.',
+      fact:'يواصل الدماغ عمله وأنتِ نائمة، فهو يرتّب ما تعلمتِه خلال يومك.'},
+    {id:'heart',    emoji:'❤️', name:'القلب',         color:'#E5484D', fnLabel:'وظيفته',
+      fn:'ضخ الدم إلى جميع أجزاء الجسم.',
+      fact:'ينبض القلب باستمرار ليساعد على إيصال الدم إلى الجسم.'},
+    {id:'lungs',    emoji:'🫁', name:'الرئتان',       color:'#5AB0E6', fnLabel:'وظيفتهما',
+      fn:'تساعداننا على التنفس وتبادل الأكسجين وثاني أكسيد الكربون.',
+      fact:'كلما ركضتِ أسرع، تنفّستِ أسرع، لأن جسمك يحتاج إلى أكسجين أكثر.'},
+    {id:'stomach',  emoji:'🍽️', name:'المعدة',        color:'#F2A03D', fnLabel:'وظيفتها',
+      fn:'تساعد على هضم الطعام.',
+      fact:'تعمل المعدة مثل الخلّاط، فهي تحرّك الطعام وتمزجه حتى يصبح لينًا.'},
+    {id:'kidneys',  emoji:'🫘', name:'الكليتان',      color:'#8E6BD8', fnLabel:'وظيفتهما',
+      fn:'تصفيان الفضلات من الدم وتساعدان على تنظيم الماء والأملاح.',
+      fact:'كل كلية في جسمك بحجم قبضة اليد تقريبًا.'},
+    {id:'muscles',  emoji:'💪', name:'العضلات',       color:'#E8704F', fnLabel:'وظيفتها',
+      fn:'تساعد الجسم على الحركة.',
+      fact:'عضلات وجهك تعمل حين تبتسمين، فهي لا تحرّك الذراعين والساقين فقط.'},
+    {id:'eyes',     emoji:'👁️', name:'العينان',       color:'#1F9D55', fnLabel:'وظيفتهما',
+      fn:'تساعداننا على الرؤية.',
+      fact:'نرمش عدة مرات كل دقيقة ليبقى سطح العين رطبًا ونظيفًا.'}
+  ];
+  const TOTAL = ORGANS.length;
+  const byId = Object.fromEntries(ORGANS.map(o => [o.id, o]));
+
+  const app = document.getElementById('app');
+  const chipsEl = document.getElementById('chips');
+  const dlg = document.getElementById('dlg');
+  const progressText = document.getElementById('progressText');
+  const bar = document.getElementById('bar');
+  const restartBtn = document.getElementById('restartBtn');
+
+  const found = new Set();
+  let started = false;
+  let current = null;
+  let celebrated = false;
+
+  /* أزرار الأعضاء */
+  ORGANS.forEach(o => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.dataset.id = o.id;
+    b.style.setProperty('--c', o.color);
+    b.innerHTML = '<span aria-hidden="true">' + o.emoji + '</span>' + o.name;
+    chipsEl.appendChild(b);
+  });
+
+  function update(){
+    const n = found.size;
+    progressText.textContent = 'اكتشفتِ ' + n + ' من ' + TOTAL + ' أعضاء' + (n === TOTAL ? ' 🎉' : '');
+    bar.setAttribute('aria-valuenow', n);
+    bar.firstElementChild.style.width = (n / TOTAL * 100) + '%';
+    restartBtn.hidden = n !== TOTAL;
+    ORGANS.forEach(o => {
+      const on = found.has(o.id);
+      chipsEl.querySelector('.chip[data-id="' + o.id + '"]').classList.toggle('found', on);
+    });
+  }
+
+  function openOrgan(id){
+    const o = byId[id];
+    current = id;
+    dlg.innerHTML =
+      '<div class="card" style="--c:' + o.color + '">' +
+        '<div class="badge" aria-hidden="true">' + o.emoji + '</div>' +
+        '<h2>' + o.name + '</h2>' +
+        '<p class="label">' + o.fnLabel + '</p>' +
+        '<p class="text">' + o.fn + '</p>' +
+        '<div class="fact"><p class="label">معلومة ممتعة</p><p class="text">' + o.fact + '</p></div>' +
+        '<button class="btn" type="button" data-close>العودة إلى الأعضاء</button>' +
+      '</div>';
+    dlg.showModal();
+    dlg.querySelector('.btn').focus();
+  }
+
+  function openDone(){
+    current = null;
+    dlg.innerHTML =
+      '<div class="card" style="--c:#1F6F78">' +
+        '<div class="badge" aria-hidden="true">🎉</div>' +
+        '<h2>أحسنتِ!</h2>' +
+        '<p class="text">اكتشفتِ أسرار الأعضاء السبعة، وصارت كل الأعضاء ملوّنة.</p>' +
+        '<div class="row">' +
+          '<button class="btn" type="button" data-close>العودة إلى الأعضاء</button>' +
+          '<button class="btn ghost" type="button" data-restart>ابدئي من جديد</button>' +
+        '</div>' +
+      '</div>';
+    dlg.showModal();
+    dlg.querySelector('.btn').focus();
+  }
+
+  function restart(){
+    found.clear();
+    celebrated = false;
+    current = null;
+    update();
+    if (dlg.open) dlg.close();
+  }
+
+  /* عند إغلاق البطاقة يتلوّن العضو */
+  dlg.addEventListener('close', () => {
+    if (!current) return;
+    const id = current;
+    current = null;
+    const isNew = !found.has(id);
+    found.add(id);
+    update();
+    if (found.size === TOTAL && !celebrated){
+      celebrated = true;
+      setTimeout(openDone, 800);
+    }
+  });
+
+  dlg.addEventListener('click', e => {
+    if (e.target === dlg || e.target.closest('[data-close]')) dlg.close();
+    else if (e.target.closest('[data-restart]')) restart();
+  });
+
+  chipsEl.addEventListener('click', e => {
+    const b = e.target.closest('.chip');
+    if (b) openOrgan(b.dataset.id);
+  });
+
+  /* بدء الرحلة */
+  document.getElementById('startBtn').addEventListener('click', () => {
+    started = true;
+    app.dataset.state = 'explore';
+    document.getElementById('exploreTitle').focus({preventScroll:true});
+  });
+
+  restartBtn.addEventListener('click', restart);
+  update();
+})();
+</script>
+</body>
+</html>
